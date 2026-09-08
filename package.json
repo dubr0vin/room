@@ -1,0 +1,39 @@
+{
+  "name": "room",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3210 --strictPort",
+    "build": "npm run check && vite build",
+    "check": "tsc --noEmit",
+    "test": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "peer": "peerjs --port 9000 --path /room",
+    "preview": "vite preview --host 0.0.0.0 --port 3210 --strictPort",
+    "start": "sirv dist --host 0.0.0.0 --port 3210 --etag --maxage 0",
+    "install:macos": "node scripts/install-macos.mjs"
+  },
+  "dependencies": {
+    "@mantine/core": "8.3.18",
+    "@mantine/hooks": "8.3.18",
+    "peer": "1.0.2",
+    "peerjs": "1.5.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sirv-cli": "3.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.5.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "prettier": "3.9.6",
+    "typescript": "7.0.2",
+    "vite": "7.3.6"
+  }
+}
