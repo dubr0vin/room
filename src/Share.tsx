@@ -60,6 +60,15 @@ export function Share() {
             Выбрать экран или окно
           </Button>
         )}
+        <Text
+          component="code"
+          size="xs"
+          c="dimmed"
+          ta="center"
+          style={{ overflowWrap: 'anywhere', userSelect: 'text' }}
+        >
+          chrome://flags/#use-sc-content-sharing-picker → Enabled
+        </Text>
         <StatsPanel />
       </Stack>
     </main>
