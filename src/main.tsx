@@ -12,6 +12,7 @@ import { Share } from './Share';
 import { Fullscreen } from './Fullscreen';
 import { RoomCode } from './RoomCode';
 import { StatsPanel } from './StatsPanel';
+import { InstallButton } from './InstallButton';
 
 const audioPreference = 'room.audio-enabled';
 
@@ -171,9 +172,16 @@ function Home() {
         <Button component="a" href="/share.html" size="xl" variant="light">
           Share
         </Button>
+        <InstallButton />
       </Stack>
     </main>
   );
+}
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  void navigator.serviceWorker
+    .register('/sw.js')
+    .catch((error) => console.warn('Room service worker registration failed:', error));
 }
 
 const page = location.pathname;
