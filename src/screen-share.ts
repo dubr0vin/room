@@ -1,7 +1,7 @@
 import { watchStats } from './stats';
 import { type DataConnection, type MediaConnection } from 'peerjs';
 import { stop } from './devices';
-import { createPeer, message, ROOM_ID, videoBitrate } from './peer';
+import { createPeer, message, preferH264, ROOM_ID, videoBitrate } from './peer';
 
 export function screenShare(
   address: string,
@@ -107,7 +107,10 @@ export function screenShare(
       });
       video.addEventListener('ended', stopSharing, { once: true });
       try {
-        const outgoing = peer.call(ROOM_ID, captured, { metadata: { type: 'share' } });
+        const outgoing = peer.call(ROOM_ID, captured, {
+          metadata: { type: 'share' },
+          sdpTransform: preferH264,
+        });
         call = outgoing;
         videoBitrate(outgoing);
         watchStats(outgoing, 'Экран → ТВ');

@@ -117,7 +117,10 @@ export function readStats(
           ),
         ];
         if (video) {
+          const efficient = stat[sent ? 'powerEfficientEncoder' : 'powerEfficientDecoder'];
           metrics.push(
+            metric('Параметры кодека', string(codec, 'sdpFmtpLine')),
+            ...(sent ? [metric('Режим масштабирования', string(stat, 'scalabilityMode'))] : []),
             metric(
               sent ? 'Отправляемый кадр' : 'Принимаемый кадр',
               size(stat.frameWidth, stat.frameHeight),
@@ -137,6 +140,10 @@ export function readStats(
             metric(
               sent ? 'Кодировщик' : 'Декодировщик',
               string(stat, sent ? 'encoderImplementation' : 'decoderImplementation'),
+            ),
+            metric(
+              sent ? 'Энергоэффективный кодировщик' : 'Энергоэффективный декодировщик',
+              typeof efficient === 'boolean' ? (efficient ? 'Да' : 'Нет') : null,
             ),
           );
         }

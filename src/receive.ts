@@ -1,6 +1,6 @@
 import { watchStats } from './stats';
 import { type DataConnection, type MediaConnection } from 'peerjs';
-import { createPeer, message, ROOM_ID } from './peer';
+import { createPeer, message, preferH264, ROOM_ID } from './peer';
 
 export function receive(
   onStream: (stream: MediaStream | null) => void,
@@ -75,7 +75,7 @@ export function receive(
     incoming.on('error', () => {
       if (call === incoming) reset();
     });
-    incoming.answer();
+    incoming.answer(undefined, { sdpTransform: preferH264 });
     watchStats(incoming, 'Камера комнаты → клиент');
   });
 

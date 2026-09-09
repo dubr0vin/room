@@ -1,7 +1,7 @@
 import { watchStats } from './stats';
 import { type DataConnection, type MediaConnection } from 'peerjs';
 import { capture, stop, type Devices } from './devices';
-import { createPeer, message, ROOM_ID, videoBitrate } from './peer';
+import { createPeer, message, preferH264, ROOM_ID, videoBitrate } from './peer';
 
 type Listener = { data: DataConnection; mode?: 'watch' | 'share'; call?: MediaConnection };
 
@@ -65,7 +65,7 @@ export function broadcast(
     try {
       const local = await getStream();
       if (!listeners.has(listener)) return;
-      const call = peer.call(listener.data.peer, local);
+      const call = peer.call(listener.data.peer, local, { sdpTransform: preferH264 });
       listener.call = call;
       videoBitrate(call);
       watchStats(call, 'Камера комнаты → клиент');
@@ -149,7 +149,7 @@ export function broadcast(
       incoming.close();
       ended();
     });
-    incoming.answer();
+    incoming.answer(undefined, { sdpTransform: preferH264 });
     watchStats(incoming, 'Экран → ТВ');
     status();
   });
