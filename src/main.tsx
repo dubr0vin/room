@@ -10,6 +10,7 @@ import { Settings } from './Settings';
 import { message } from './peer';
 import { Share } from './Share';
 import { Fullscreen } from './Fullscreen';
+import { StarVortex } from './StarVortex';
 
 const source = !location.pathname.endsWith('/client.html');
 
@@ -97,6 +98,7 @@ function App() {
         className="remote-video"
         aria-label={source ? 'Экран на ТВ' : 'Видео комнаты'}
       />
+      {source && !stream && <StarVortex />}
       {!source && !stream && (
         <p className="connection-status" role="status">
           {status}
