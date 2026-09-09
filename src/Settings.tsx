@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActionIcon, Alert, Button, Modal, Select, Stack, Text } from '@mantine/core';
 import { capture, stop, type Devices } from './devices';
 import { message } from './peer';
+import { StatsPanel } from './StatsPanel';
 
 type Props = {
   devices: Devices;
@@ -90,7 +91,7 @@ export function Settings({ devices, onChange, source, status, error }: Props) {
           {error}
         </button>
       )}
-      <Modal opened={opened} onClose={() => setOpened(false)} title="Настройки" centered>
+      <Modal opened={opened} onClose={() => setOpened(false)} title="Настройки" centered size="lg">
         <Stack>
           <Text size="sm" c="dimmed" role="status">
             {status}
@@ -144,6 +145,7 @@ export function Settings({ devices, onChange, source, status, error }: Props) {
           >
             Применить
           </Button>
+          <StatsPanel />
         </Stack>
       </Modal>
     </>

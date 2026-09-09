@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Stack, Text, TextInput } from '@mantine/core';
 import { screenShare } from './screen-share';
 import { message } from './peer';
+import { StatsPanel } from './StatsPanel';
 
 export function Share() {
   const [address, setAddress] = useState(() => {
@@ -98,6 +99,7 @@ export function Share() {
             Выбрать экран или окно
           </Button>
         )}
+        <StatsPanel />
       </Stack>
     </main>
   );

@@ -1,3 +1,4 @@
+import { watchStats } from './stats';
 import { type DataConnection, type MediaConnection } from 'peerjs';
 import { capture, stop, type Devices } from './devices';
 import { createPeer, message, ROOM_ID, videoBitrate } from './peer';
@@ -67,6 +68,7 @@ export function broadcast(
       const call = peer.call(listener.data.peer, local);
       listener.call = call;
       videoBitrate(call);
+      watchStats(call, 'Камера комнаты → клиент');
       call.on('close', () => remove(listener));
       call.on('error', () => remove(listener));
       onError('');
@@ -148,6 +150,7 @@ export function broadcast(
       ended();
     });
     incoming.answer();
+    watchStats(incoming, 'Экран → ТВ');
     status();
   });
 

@@ -67,10 +67,13 @@ body,
 }
 .share-screen {
   display: grid;
-  place-items: center;
+  align-items: safe center;
+  justify-items: center;
+  overflow: auto;
 }
 .share-controls {
-  width: min(420px, calc(100vw - 48px));
+  width: min(540px, calc(100vw - 48px));
+  padding-block: 24px;
 }
 
 .audio-button {
@@ -78,4 +81,22 @@ body,
   top: 26px;
   right: 80px;
   z-index: 2;
+}
+
+.stats-overlay {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  width: min(540px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+  overflow: auto;
+}
+.stats-table {
+  table-layout: fixed;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.stats-table td:first-child {
+  width: 62%;
 }

@@ -11,6 +11,7 @@ import { message } from './peer';
 import { Share } from './Share';
 import { Fullscreen } from './Fullscreen';
 import { StarVortex } from './StarVortex';
+import { StatsPanel } from './StatsPanel';
 
 const source = !location.pathname.endsWith('/client.html');
 
@@ -103,6 +104,11 @@ function App() {
         <p className="connection-status" role="status">
           {status}
         </p>
+      )}
+      {!source && new URLSearchParams(location.search).get('stats') === '1' && (
+        <aside className="stats-overlay">
+          <StatsPanel expanded />
+        </aside>
       )}
       {source && (
         <>

@@ -1,3 +1,4 @@
+import { watchStats } from './stats';
 import { type DataConnection, type MediaConnection } from 'peerjs';
 import { createPeer, message, ROOM_ID } from './peer';
 
@@ -75,6 +76,7 @@ export function receive(
       if (call === incoming) reset();
     });
     incoming.answer();
+    watchStats(incoming, 'Камера комнаты → клиент');
   });
 
   return () => {

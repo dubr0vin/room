@@ -1,3 +1,4 @@
+import { watchStats } from './stats';
 import { type DataConnection, type MediaConnection } from 'peerjs';
 import { stop } from './devices';
 import { createPeer, message, ROOM_ID, videoBitrate } from './peer';
@@ -109,6 +110,7 @@ export function screenShare(
         const outgoing = peer.call(ROOM_ID, captured, { metadata: { type: 'share' } });
         call = outgoing;
         videoBitrate(outgoing);
+        watchStats(outgoing, 'Экран → ТВ');
         outgoing.on('close', () => {
           if (call === outgoing) stopSharing();
         });
