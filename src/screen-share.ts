@@ -4,12 +4,11 @@ import { stop } from './devices';
 import { createPeer, message, preferVideoCodecs, ROOM_ID, videoBitrate } from './peer';
 
 export function screenShare(
-  address: string,
   onStatus: (text: string) => void,
   onReady: (ready: boolean) => void,
   onSharing: (sharing: boolean) => void,
 ) {
-  const peer = createPeer(undefined, address);
+  const peer = createPeer();
   let data: DataConnection | undefined;
   let call: MediaConnection | undefined;
   let stream: MediaStream | undefined;

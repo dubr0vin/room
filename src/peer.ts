@@ -2,26 +2,11 @@ import Peer, { type MediaConnection } from 'peerjs';
 
 export const ROOM_ID = 'room';
 
-export function createPeer(id?: string, address?: string) {
-  const server = address
-    ? new URL(address.includes('://') ? address : `${location.protocol}//${address}`)
-    : null;
-  if (server && !['http:', 'https:', 'ws:', 'wss:'].includes(server.protocol)) {
-    throw new Error('Укажи IP или адрес PeerServer, например 192.168.0.16:9000.');
-  }
-  const secure = server
-    ? ['https:', 'wss:'].includes(server.protocol)
-    : location.protocol === 'https:';
-  if (location.protocol === 'https:' && !secure) {
-    throw new Error('На HTTPS-странице укажи HTTPS-адрес сервера.');
-  }
+export function createPeer(id?: string) {
+  const secure = location.protocol === 'https:';
   const options = {
-    host: server?.hostname || import.meta.env.VITE_PEER_HOST || location.hostname,
-    port: Number(
-      server
-        ? server.port || (secure ? 443 : 9000)
-        : import.meta.env.VITE_PEER_PORT || (secure ? location.port || 443 : 9000),
-    ),
+    host: import.meta.env.VITE_PEER_HOST || location.hostname,
+    port: Number(import.meta.env.VITE_PEER_PORT || (secure ? location.port || 443 : 9000)),
     path: '/room',
     secure,
     config: { iceServers: [] },
