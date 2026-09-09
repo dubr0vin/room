@@ -25,7 +25,7 @@ export function saveDevices(devices: Devices) {
 
 export async function capture(devices: Devices) {
   if (!navigator.mediaDevices?.getUserMedia) {
-    throw new Error('Открой главную страницу через localhost на ТВ-маке или через HTTPS.');
+    throw new Error('Открой страницу TV через localhost на ТВ-маке или через HTTPS.');
   }
   const stream = await navigator.mediaDevices.getUserMedia({
     video: {

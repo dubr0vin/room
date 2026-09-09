@@ -3,17 +3,24 @@ import Peer, { type MediaConnection } from 'peerjs';
 export const ROOM_ID = 'room';
 
 export function createPeer(id?: string, address?: string) {
-  const server = address ? new URL(address.includes('://') ? address : `http://${address}`) : null;
+  const server = address
+    ? new URL(address.includes('://') ? address : `${location.protocol}//${address}`)
+    : null;
   if (server && !['http:', 'https:', 'ws:', 'wss:'].includes(server.protocol)) {
-    throw new Error('Укажи IP или адрес PeerServer, например 192.168.0.17:9000.');
+    throw new Error('Укажи IP или адрес PeerServer, например 192.168.0.16:9000.');
   }
   const secure = server
     ? ['https:', 'wss:'].includes(server.protocol)
     : location.protocol === 'https:';
+  if (location.protocol === 'https:' && !secure) {
+    throw new Error('На HTTPS-странице укажи HTTPS-адрес сервера.');
+  }
   const options = {
     host: server?.hostname || import.meta.env.VITE_PEER_HOST || location.hostname,
     port: Number(
-      server ? server.port || (secure ? 443 : 9000) : import.meta.env.VITE_PEER_PORT || 9000,
+      server
+        ? server.port || (secure ? 443 : 9000)
+        : import.meta.env.VITE_PEER_PORT || (secure ? location.port || 443 : 9000),
     ),
     path: '/room',
     secure,
@@ -29,12 +36,9 @@ export function preferVideoCodecs(sdp: string): string {
     .split(/(?=^m=)/m)
     .map((section) => {
       if (!section.startsWith('m=video ')) return section;
-      // Prefer HEVC, then AVC, but only if the browser advertised them.
+      // Prefer AVC for stable hardware encoding; keep other advertised codecs as fallbacks.
       const priority = new Map(
-        [...section.matchAll(/^a=rtpmap:(\d+) (H265|H264)\/90000\r?$/gim)].map((match) => [
-          match[1],
-          match[2].toUpperCase() === 'H265' ? 0 : 1,
-        ]),
+        [...section.matchAll(/^a=rtpmap:(\d+) H264\/90000\r?$/gim)].map((match) => [match[1], 0]),
       );
       if (!priority.size) return section;
       // Only reorder payload IDs. Keep every codec, profile, RTX mapping and FEC entry.

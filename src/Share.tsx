@@ -6,6 +6,7 @@ import { StatsPanel } from './StatsPanel';
 
 export function Share() {
   const [address, setAddress] = useState(() => {
+    if (location.protocol === 'https:') return location.origin;
     try {
       return localStorage.getItem('room.share-server') ?? '';
     } catch {
@@ -74,8 +75,8 @@ export function Share() {
         >
           <Stack>
             <TextInput
-              label="IP PeerServer"
-              placeholder="192.168.0.17 или 192.168.0.17:9000"
+              label="Адрес ТВ"
+              placeholder="192.168.0.16 или https://toccata-and-fugue.duckdns.org"
               value={address}
               onChange={(event) => setAddress(event.currentTarget.value)}
               disabled={sharing || busy}

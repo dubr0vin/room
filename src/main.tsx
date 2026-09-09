@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Button, MantineProvider } from '@mantine/core';
+import { Button, MantineProvider, Stack, Title } from '@mantine/core';
 import '@mantine/core/styles.css';
 import './style.css';
 import { broadcast } from './broadcast';
@@ -10,10 +10,9 @@ import { Settings } from './Settings';
 import { message } from './peer';
 import { Share } from './Share';
 import { Fullscreen } from './Fullscreen';
-import { StarVortex } from './StarVortex';
+import { RoomCode } from './RoomCode';
 import { StatsPanel } from './StatsPanel';
 
-const source = !location.pathname.endsWith('/client.html');
 const audioPreference = 'room.audio-enabled';
 
 function readAudioPreference() {
@@ -24,7 +23,7 @@ function readAudioPreference() {
   }
 }
 
-function App() {
+function App({ source }: { source: boolean }) {
   const [devices, setDevices] = useState(readDevices);
   const [status, setStatus] = useState('Подключение к серверу…');
   const [error, setError] = useState('');
@@ -130,7 +129,7 @@ function App() {
         className="remote-video"
         aria-label={source ? 'Экран на ТВ' : 'Видео комнаты'}
       />
-      {source && !stream && <StarVortex />}
+      {source && !stream && <RoomCode />}
       {!source && !stream && (
         <p className="connection-status" role="status">
           {status}
@@ -156,8 +155,39 @@ function App() {
   );
 }
 
+function Home() {
+  return (
+    <main className="screen home-screen">
+      <Stack className="home-controls" gap="md">
+        <Title order={1} ta="center" mb="md">
+          Room
+        </Title>
+        <Button component="a" href="/tv.html" size="xl" variant="light">
+          TV
+        </Button>
+        <Button component="a" href="/camera.html" size="xl" variant="light">
+          Camera
+        </Button>
+        <Button component="a" href="/share.html" size="xl" variant="light">
+          Share
+        </Button>
+      </Stack>
+    </main>
+  );
+}
+
+const page = location.pathname;
+
 createRoot(document.getElementById('root')!).render(
   <MantineProvider forceColorScheme="dark">
-    {location.pathname.endsWith('/share.html') ? <Share /> : <App />}
+    {page.endsWith('/tv.html') ? (
+      <App source />
+    ) : page.endsWith('/camera.html') || page.endsWith('/client.html') ? (
+      <App source={false} />
+    ) : page.endsWith('/share.html') ? (
+      <Share />
+    ) : (
+      <Home />
+    )}
   </MantineProvider>,
 );

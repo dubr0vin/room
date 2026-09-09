@@ -91,9 +91,7 @@ export function broadcast(
   });
   peer.on('error', (error) => {
     onError(
-      error.type === 'unavailable-id'
-        ? 'Главная страница комнаты уже открыта в другом окне.'
-        : message(error),
+      error.type === 'unavailable-id' ? 'Страница TV уже открыта в другом окне.' : message(error),
     );
   });
   peer.on('connection', (data) => {

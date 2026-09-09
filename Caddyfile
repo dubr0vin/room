@@ -1,0 +1,17 @@
+toccata-and-fugue.duckdns.org {
+	tls {
+		ca https://acme-v02.api.letsencrypt.org/directory
+		dns duckdns {env.DUCKDNS_API_TOKEN} {
+			resolver 1.1.1.1:53
+		}
+		resolvers 1.1.1.1 8.8.8.8
+	}
+
+	@peer path /room /room/*
+	handle @peer {
+		reverse_proxy 127.0.0.1:9000
+	}
+	handle {
+		reverse_proxy 127.0.0.1:3210
+	}
+}

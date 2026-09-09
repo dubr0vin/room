@@ -18,13 +18,34 @@ body,
   object-fit: contain;
   display: block;
 }
-.star-vortex {
+.room-code {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
   z-index: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 24px;
+  margin: 0;
+  text-align: center;
+}
+.room-code img {
+  display: block;
+  width: min(360px, 65vw, 55svh);
+  height: auto;
+}
+.room-code figcaption {
+  color: #aaa;
+  font-size: clamp(14px, 2vw, 22px);
+}
+.home-screen {
+  display: grid;
+  place-items: center;
+  overflow: auto;
+}
+.home-controls {
+  width: min(360px, calc(100vw - 48px));
+  padding-block: 24px;
 }
 .settings-button {
   position: fixed;

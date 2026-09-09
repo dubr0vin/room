@@ -48,7 +48,7 @@ test('late source, multiple viewers, release and reconnect', async ({ context, p
   await instrument(viewer);
   await viewer.goto('/client.html');
   await expect(viewer.getByRole('status')).toBeVisible();
-  await source.goto('/');
+  await source.goto('/tv.html');
   await expectMedia(viewer);
   expect(await viewer.evaluate(() => window.testCaptures.length)).toBe(0);
 
@@ -93,7 +93,7 @@ test('settings persist and switching the camera restarts the stream', async ({
   page: source,
 }) => {
   await instrument(source);
-  await source.goto('/');
+  await source.goto('/tv.html');
   await expect(source.getByRole('button', { name: 'Настройки' })).toBeVisible();
   expect(await source.evaluate(() => window.testCaptures.length)).toBe(0);
   const viewer = await context.newPage();
