@@ -8,6 +8,8 @@ import { receive } from './receive';
 import { readDevices, saveDevices, type Devices } from './devices';
 import { Settings } from './Settings';
 import { message } from './peer';
+import { Share } from './Share';
+import { Fullscreen } from './Fullscreen';
 
 const source = !location.pathname.endsWith('/client.html');
 
@@ -20,7 +22,7 @@ function App() {
   const host = useRef<ReturnType<typeof broadcast> | null>(null);
 
   useEffect(() => {
-    const room = source ? broadcast(readDevices(), setStatus, setError) : null;
+    const room = source ? broadcast(readDevices(), setStatus, setError, setStream) : null;
     host.current = room;
     const close = room ? room.close : receive(setStream, setStatus);
     window.addEventListener('pagehide', close);
@@ -36,7 +38,7 @@ function App() {
     if (!element) return;
     let cancelled = false;
     element.srcObject = stream;
-    element.muted = false;
+    element.muted = source;
     if (stream) {
       void element.play().catch((error) => {
         if (!cancelled) console.warn('Audio/video autoplay was blocked:', error);
@@ -65,24 +67,23 @@ function App() {
 
   return (
     <main className="screen">
-      {!source && (
-        <>
-          <video
-            ref={video}
-            autoPlay
-            playsInline
-            className="remote-video"
-            aria-label="Видео комнаты"
-          />
-          {!stream && (
-            <p className="connection-status" role="status">
-              {status}
-            </p>
-          )}
-        </>
+      <video
+        ref={video}
+        autoPlay
+        playsInline
+        className="remote-video"
+        aria-label={source ? 'Экран на ТВ' : 'Видео комнаты'}
+      />
+      {!source && !stream && (
+        <p className="connection-status" role="status">
+          {status}
+        </p>
       )}
       {source && (
-        <Settings devices={devices} onChange={apply} source status={status} error={error} />
+        <>
+          <Settings devices={devices} onChange={apply} source status={status} error={error} />
+          <Fullscreen onError={setError} />
+        </>
       )}
     </main>
   );
@@ -90,6 +91,6 @@ function App() {
 
 createRoot(document.getElementById('root')!).render(
   <MantineProvider forceColorScheme="dark">
-    <App />
+    {location.pathname.endsWith('/share.html') ? <Share /> : <App />}
   </MantineProvider>,
 );

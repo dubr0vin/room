@@ -16,7 +16,8 @@
     "peer": "peerjs --port 9000 --path /room",
     "preview": "vite preview --host 0.0.0.0 --port 3210 --strictPort",
     "start": "sirv dist --host 0.0.0.0 --port 3210 --etag --maxage 0",
-    "install:macos": "node scripts/install-macos.mjs"
+    "install:macos": "node scripts/install-macos.mjs",
+    "share": "vite --host 127.0.0.1 --port 3212 --strictPort --open /share.html"
   },
   "dependencies": {
     "@mantine/core": "8.3.18",

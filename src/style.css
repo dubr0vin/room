@@ -49,3 +49,17 @@ body,
   color: #ffd0d0;
   cursor: pointer;
 }
+
+.fullscreen-button {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2;
+}
+.share-screen {
+  display: grid;
+  place-items: center;
+}
+.share-controls {
+  width: min(420px, calc(100vw - 48px));
+}

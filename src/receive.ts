@@ -37,6 +37,7 @@ export function receive(
     onStatus('Подключение…');
     const connection = peer.connect(ROOM_ID, { serialization: 'json' });
     data = connection;
+    connection.on('open', () => connection.send({ type: 'watch' }));
     connection.on('close', () => {
       if (data === connection) reset();
     });
