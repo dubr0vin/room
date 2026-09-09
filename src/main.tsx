@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Button, MantineProvider } from '@mantine/core';
+import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import './style.css';
 import { broadcast } from './broadcast';
@@ -16,7 +16,6 @@ function App() {
   const [status, setStatus] = useState('Подключение к серверу…');
   const [error, setError] = useState('');
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [needsPlay, setNeedsPlay] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   const host = useRef<ReturnType<typeof broadcast> | null>(null);
 
@@ -38,13 +37,9 @@ function App() {
     let cancelled = false;
     element.srcObject = stream;
     element.muted = false;
-    setNeedsPlay(false);
     if (stream) {
-      void element.play().catch(async () => {
-        if (cancelled) return;
-        element.muted = true;
-        setNeedsPlay(true);
-        await element.play().catch(() => {});
+      void element.play().catch((error) => {
+        if (!cancelled) console.warn('Audio/video autoplay was blocked:', error);
       });
     }
     return () => {
@@ -68,17 +63,6 @@ function App() {
     setError('');
   }
 
-  async function play() {
-    if (!video.current) return;
-    video.current.muted = false;
-    try {
-      await video.current.play();
-      setNeedsPlay(false);
-    } catch (error) {
-      setError(message(error));
-    }
-  }
-
   return (
     <main className="screen">
       {!source && (
@@ -95,14 +79,11 @@ function App() {
               {status}
             </p>
           )}
-          {needsPlay && (
-            <Button className="play-button" onClick={() => void play()}>
-              Включить звук
-            </Button>
-          )}
         </>
       )}
-      <Settings devices={devices} onChange={apply} source={source} status={status} error={error} />
+      {source && (
+        <Settings devices={devices} onChange={apply} source status={status} error={error} />
+      )}
     </main>
   );
 }

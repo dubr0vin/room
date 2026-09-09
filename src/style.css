@@ -35,12 +35,6 @@ body,
   color: #888;
   text-align: center;
 }
-.play-button {
-  position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-}
 .notice {
   position: fixed;
   bottom: 24px;
