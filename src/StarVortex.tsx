@@ -10,18 +10,13 @@ export function StarVortex() {
     const context = element?.getContext('2d', { alpha: false });
     if (!element || !context) return;
 
-    const stars = Array.from({ length: 700 }, (_, index) => ({
+    const stars = Array.from({ length: 1000 }, (_, index) => ({
       depth: Math.random(),
-      angle: (index % 3) * ((Math.PI * 2) / 3) + (Math.random() - 0.5) * 0.65,
+      angle: Math.random() * Math.PI * 2,
+      orbit: 0.16 + Math.random() * 0.08,
       size: 0.4 + Math.random() ** 2 * 1.8,
       speed: 0.018 + Math.random() * 0.008,
       color: colors[index % colors.length],
-    }));
-    const background = Array.from({ length: 130 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      size: 0.3 + Math.random() * 0.7,
-      phase: Math.random() * Math.PI * 2,
     }));
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let width = 0;
@@ -35,13 +30,6 @@ export function StarVortex() {
       context.globalAlpha = 1;
       context.fillStyle = '#000';
       context.fillRect(0, 0, width, height);
-      context.fillStyle = '#b7caff';
-      for (const star of background) {
-        context.globalAlpha = 0.2 + 0.2 * (1 + Math.sin(time * 0.4 + star.phase));
-        context.beginPath();
-        context.arc(star.x * width, star.y * height, star.size, 0, Math.PI * 2);
-        context.fill();
-      }
 
       const radius = Math.min(width * 0.48, height * 0.7);
       context.save();
@@ -58,16 +46,19 @@ export function StarVortex() {
 
       for (const star of stars) {
         const depth = (((star.depth - time * star.speed) % 1) + 1) % 1;
-        const distance = depth ** 1.4 * radius;
-        const angle = star.angle + (1 - depth) * 6 + time * 0.12;
+        // Uniform area distribution; stars fade out at the centre and reappear at the rim.
+        const distance = Math.sqrt(depth) * radius;
+        const angle = star.angle + time * star.orbit + (1 - depth) ** 2 * 2;
         const x = Math.cos(angle) * distance;
         const y = Math.sin(angle) * distance;
         context.globalAlpha = Math.min(depth * 15, (1 - depth) * 8, 1) * 0.85;
         context.strokeStyle = star.color;
         context.lineWidth = star.size * 0.65;
         context.beginPath();
-        context.arc(0, 0, distance, angle - 0.025, angle);
+        context.globalAlpha *= 0.35;
+        context.arc(0, 0, distance, angle - 0.016, angle);
         context.stroke();
+        context.globalAlpha /= 0.35;
         context.fillStyle = star.color;
         context.beginPath();
         context.arc(x, y, star.size, 0, Math.PI * 2);
