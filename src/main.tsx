@@ -14,13 +14,23 @@ import { StarVortex } from './StarVortex';
 import { StatsPanel } from './StatsPanel';
 
 const source = !location.pathname.endsWith('/client.html');
+const audioPreference = 'room.audio-enabled';
+
+function readAudioPreference() {
+  try {
+    return localStorage.getItem(audioPreference) === 'true';
+  } catch {
+    return false;
+  }
+}
 
 function App() {
   const [devices, setDevices] = useState(readDevices);
   const [status, setStatus] = useState('Подключение к серверу…');
   const [error, setError] = useState('');
   const [hasAudio, setHasAudio] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(readAudioPreference);
+  const audioAllowed = useRef(audioEnabled);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const video = useRef<HTMLVideoElement>(null);
   const host = useRef<ReturnType<typeof broadcast> | null>(null);
@@ -42,18 +52,29 @@ function App() {
     if (!element) return;
     let cancelled = false;
     element.srcObject = stream;
-    element.muted = source;
-    setAudioEnabled(false);
-    const updateAudio = () =>
+    // Reuse this video element and its audio permission across stream replacements.
+    element.muted = source && !audioAllowed.current;
+    const updateAudio = () => {
       setHasAudio(Boolean(stream?.getAudioTracks().some((track) => track.readyState === 'live')));
+      if (!stream) return;
+      void element.play().catch((error) => {
+        if (cancelled) return;
+        if (source && error.name === 'NotAllowedError') {
+          // A saved preference cannot grant browser autoplay permission after a reload.
+          audioAllowed.current = false;
+          setAudioEnabled(false);
+          element.muted = true;
+          void element.play().catch((error) => {
+            if (!cancelled) console.warn('Video autoplay was blocked:', error);
+          });
+        } else {
+          console.warn('Audio/video playback failed:', error);
+        }
+      });
+    };
     updateAudio();
     stream?.addEventListener('addtrack', updateAudio);
     stream?.addEventListener('removetrack', updateAudio);
-    if (stream) {
-      void element.play().catch((error) => {
-        if (!cancelled) console.warn('Audio/video autoplay was blocked:', error);
-      });
-    }
     return () => {
       cancelled = true;
       stream?.removeEventListener('addtrack', updateAudio);
@@ -66,15 +87,25 @@ function App() {
   function enableAudio() {
     const element = video.current;
     if (!element) return;
+    const currentStream = element.srcObject;
     setError('');
+    audioAllowed.current = true;
+    setAudioEnabled(true);
     element.muted = false;
-    void element
-      .play()
-      .then(() => setAudioEnabled(true))
-      .catch((error) => {
-        element.muted = true;
-        setError(message(error));
-      });
+    try {
+      localStorage.setItem(audioPreference, 'true');
+    } catch {
+      // Keep the choice for this page even if persistent storage is unavailable.
+    }
+    // Call play directly from the click so Safari receives the user gesture.
+    void element.play().catch((error) => {
+      if (element.srcObject !== currentStream) return;
+      audioAllowed.current = false;
+      setAudioEnabled(false);
+      element.muted = true;
+      setError(message(error));
+      void element.play().catch(() => {});
+    });
   }
 
   function apply(next: Devices) {
