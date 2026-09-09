@@ -89,7 +89,7 @@ export function screenShare(
       const current = ++generation;
       // Must run directly from the button click, before awaiting network operations.
       const options = {
-        video: { frameRate: { ideal: 60, max: 60 } },
+        video: { frameRate: { ideal: 30, max: 30 } },
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
         systemAudio: 'include',
         windowAudio: 'system',
