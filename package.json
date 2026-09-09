@@ -35,5 +35,10 @@
     "prettier": "3.9.6",
     "typescript": "7.0.2",
     "vite": "7.3.6"
+  },
+  "overrides": {
+    "express": {
+      "qs": "6.16.0"
+    }
   }
 }
