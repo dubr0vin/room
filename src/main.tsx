@@ -51,18 +51,16 @@ function App() {
     };
   }, [stream]);
 
-  useEffect(() => {
-    const element = video.current;
-    if (element && 'setSinkId' in element) {
-      void element.setSinkId(devices.speaker).catch((error) => setError(message(error)));
-    }
-  }, [devices.speaker]);
-
   function apply(next: Devices) {
+    setError('');
+    const element = video.current;
+    // Safari requires a user gesture even when selecting the default audio output.
+    if (element && 'setSinkId' in element && element.sinkId !== next.speaker) {
+      void element.setSinkId(next.speaker).catch((error) => setError(message(error)));
+    }
     saveDevices(next);
     setDevices(next);
     host.current?.setDevices(next);
-    setError('');
   }
 
   return (
