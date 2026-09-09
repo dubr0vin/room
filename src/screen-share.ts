@@ -1,7 +1,7 @@
 import { watchStats } from './stats';
 import { type DataConnection, type MediaConnection } from 'peerjs';
 import { stop } from './devices';
-import { createPeer, message, preferH264, ROOM_ID, videoBitrate } from './peer';
+import { createPeer, message, preferVideoCodecs, ROOM_ID, videoBitrate } from './peer';
 
 export function screenShare(
   address: string,
@@ -89,7 +89,7 @@ export function screenShare(
       const current = ++generation;
       // Must run directly from the button click, before awaiting network operations.
       const options = {
-        video: true,
+        video: { frameRate: { ideal: 60, max: 60 } },
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
         systemAudio: 'include',
         windowAudio: 'system',
@@ -109,7 +109,7 @@ export function screenShare(
       try {
         const outgoing = peer.call(ROOM_ID, captured, {
           metadata: { type: 'share' },
-          sdpTransform: preferH264,
+          sdpTransform: preferVideoCodecs,
         });
         call = outgoing;
         videoBitrate(outgoing);

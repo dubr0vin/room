@@ -24,23 +24,24 @@ export function createPeer(id?: string, address?: string) {
 
 // PeerJS creates offers before call() returns. Its SDP hook runs before either
 // offer or answer is applied, so codec order is set before negotiation on both ends.
-export function preferH264(sdp: string): string {
+export function preferVideoCodecs(sdp: string): string {
   return sdp
     .split(/(?=^m=)/m)
     .map((section) => {
       if (!section.startsWith('m=video ')) return section;
-      const h264 = new Set(
-        [...section.matchAll(/^a=rtpmap:(\d+) H264\/90000\r?$/gim)].map((match) => match[1]),
+      // Prefer HEVC, then AVC, but only if the browser advertised them.
+      const priority = new Map(
+        [...section.matchAll(/^a=rtpmap:(\d+) (H265|H264)\/90000\r?$/gim)].map((match) => [
+          match[1],
+          match[2].toUpperCase() === 'H265' ? 0 : 1,
+        ]),
       );
-      if (!h264.size) return section;
+      if (!priority.size) return section;
       // Only reorder payload IDs. Keep every codec, profile, RTX mapping and FEC entry.
       return section.replace(/^m=video ([^\r\n]+)/, (_line, value: string) => {
         const [port, transport, ...payloads] = value.split(/\s+/);
-        const ordered = [
-          ...payloads.filter((id) => h264.has(id)),
-          ...payloads.filter((id) => !h264.has(id)),
-        ];
-        return `m=video ${port} ${transport} ${ordered.join(' ')}`;
+        payloads.sort((a, b) => (priority.get(a) ?? 2) - (priority.get(b) ?? 2));
+        return `m=video ${port} ${transport} ${payloads.join(' ')}`;
       });
     })
     .join('');
