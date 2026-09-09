@@ -27,6 +27,7 @@ export function screenShare(
     stop(stream);
     stream = undefined;
     onSharing(false);
+    if (ready && !destroyed) onStatus('Готово к показу на ТВ');
   }
   function reset(text = 'Ожидание комнаты…') {
     clearTimeout(retry);
@@ -86,7 +87,13 @@ export function screenShare(
       }
       const current = ++generation;
       // Must run directly from the button click, before awaiting network operations.
-      const captured = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      const options = {
+        video: true,
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        systemAudio: 'include',
+        windowAudio: 'system',
+      };
+      const captured = await navigator.mediaDevices.getDisplayMedia(options);
       if (destroyed || !ready || current !== generation) {
         stop(captured);
         return;
@@ -94,6 +101,9 @@ export function screenShare(
       stream = captured;
       const [video] = captured.getVideoTracks();
       video.contentHint = 'detail';
+      captured.getAudioTracks().forEach((audio) => {
+        audio.contentHint = 'music';
+      });
       video.addEventListener('ended', stopSharing, { once: true });
       try {
         const outgoing = peer.call(ROOM_ID, captured, { metadata: { type: 'share' } });
@@ -106,6 +116,11 @@ export function screenShare(
           if (call === outgoing) stopSharing();
         });
         onSharing(true);
+        onStatus(
+          captured.getAudioTracks().length
+            ? 'Видео и звук отправляются на ТВ'
+            : 'Звуковая дорожка не получена. Перезапусти показ в Chrome и включи передачу звука в окне выбора.',
+        );
       } catch (error) {
         stopSharing();
         throw error;

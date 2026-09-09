@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import { Button, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import './style.css';
 import { broadcast } from './broadcast';
@@ -17,6 +17,8 @@ function App() {
   const [devices, setDevices] = useState(readDevices);
   const [status, setStatus] = useState('Подключение к серверу…');
   const [error, setError] = useState('');
+  const [hasAudio, setHasAudio] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const video = useRef<HTMLVideoElement>(null);
   const host = useRef<ReturnType<typeof broadcast> | null>(null);
@@ -39,6 +41,12 @@ function App() {
     let cancelled = false;
     element.srcObject = stream;
     element.muted = source;
+    setAudioEnabled(false);
+    const updateAudio = () =>
+      setHasAudio(Boolean(stream?.getAudioTracks().some((track) => track.readyState === 'live')));
+    updateAudio();
+    stream?.addEventListener('addtrack', updateAudio);
+    stream?.addEventListener('removetrack', updateAudio);
     if (stream) {
       void element.play().catch((error) => {
         if (!cancelled) console.warn('Audio/video autoplay was blocked:', error);
@@ -46,10 +54,26 @@ function App() {
     }
     return () => {
       cancelled = true;
+      stream?.removeEventListener('addtrack', updateAudio);
+      stream?.removeEventListener('removetrack', updateAudio);
       element.pause();
       element.srcObject = null;
     };
   }, [stream]);
+
+  function enableAudio() {
+    const element = video.current;
+    if (!element) return;
+    setError('');
+    element.muted = false;
+    void element
+      .play()
+      .then(() => setAudioEnabled(true))
+      .catch((error) => {
+        element.muted = true;
+        setError(message(error));
+      });
+  }
 
   function apply(next: Devices) {
     setError('');
@@ -68,6 +92,7 @@ function App() {
       <video
         ref={video}
         autoPlay
+        muted={source && !audioEnabled}
         playsInline
         className="remote-video"
         aria-label={source ? 'Экран на ТВ' : 'Видео комнаты'}
@@ -79,6 +104,11 @@ function App() {
       )}
       {source && (
         <>
+          {hasAudio && !audioEnabled && (
+            <Button className="audio-button" onClick={enableAudio}>
+              Разрешить звук
+            </Button>
+          )}
           <Settings devices={devices} onChange={apply} source status={status} error={error} />
           <Fullscreen onError={setError} />
         </>

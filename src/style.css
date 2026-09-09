@@ -63,3 +63,10 @@ body,
 .share-controls {
   width: min(420px, calc(100vw - 48px));
 }
+
+.audio-button {
+  position: fixed;
+  top: 26px;
+  right: 80px;
+  z-index: 2;
+}
